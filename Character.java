@@ -53,7 +53,10 @@ public class Character {
     public void checkPlayers(List<Character> list){
         for (int i = SavedPlayers.size()-1; i >= 0; i--){
             int index = DyingPlayers.indexOf(SavedPlayers.get(i));
-            if (index != -1) DyingPlayers.remove(index);
+            while (index != -1){
+                DyingPlayers.remove(index);
+                index = DyingPlayers.indexOf(SavedPlayers.get(i));
+            } 
         }
         for (Character p: DyingPlayers) p.isAlive = false;
 

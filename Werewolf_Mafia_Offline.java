@@ -8,14 +8,8 @@ import java.util.function.Predicate;
 public class Werewolf_Mafia_Offline {
 
     //bot names and roles to randomly choose from
-    static List<String> nameList = new ArrayList<>(List.of("Jack", 
-    "Ethan", "Lucas", "Noah", "Oliver", "Henry", "Leo", "Samuel", "Benjamin", "Elijah", 
-    "Ava", "Emma", "Sophia", "Isabella", "Mia","Charlotte", "Amelia", "Lily", "Elysia",
-    "Scarlett", "Grace", "Alex", "Jordan", "Riley", "Taylor", "Casey", "Morgan", "Skyler", 
-    "Jamie", "Avery", "Quinn", "Orion", "Zephyr", "Nyx", "Astra", "Solis", "Thorne", "Seraph", 
-    "Vesper", "Alaric"));
-    static List<Class> RolesList = new ArrayList<>(List.of(Seer.class, Doctor.class, Sorcerer.class));
-    static List<Class> extraRoles = new ArrayList<>(List.of(Mayor.class, Jester.class, Executioner.class, Hunter.class, Angel.class));
+    static List<String> nameList;
+    static List<Class> RolesList, extraRoles;
 
     //list of the players and their stats
     static List<Character> players = new ArrayList<>();
@@ -34,6 +28,7 @@ public class Werewolf_Mafia_Offline {
         int min = 6;
 
         while (true){
+            ResetGame();
             for (int j = 0; j < 10; j++) System.out.println(".");
             System.out.println("How many players do you wish to have in the game? 6 min - 16 max\nEnter 0 to exit");
             int PlayerCount = in.nextInt();
@@ -59,6 +54,23 @@ public class Werewolf_Mafia_Offline {
             GameOn = true;
             BeginGame();
         }
+    }
+
+    //resets the game by settting the default values
+    static void ResetGame(){
+        nameList = new ArrayList<>(List.of("Jack", 
+        "Ethan", "Lucas", "Noah", "Oliver", "Henry", "Leo", "Samuel", "Benjamin", "Elijah", 
+        "Ava", "Emma", "Sophia", "Isabella", "Mia","Charlotte", "Amelia", "Lily", "Elysia",
+        "Scarlett", "Grace", "Alex", "Jordan", "Riley", "Taylor", "Casey", "Morgan", "Skyler", 
+        "Jamie", "Avery", "Quinn", "Orion", "Zephyr", "Nyx", "Astra", "Solis", "Thorne", "Seraph", 
+        "Vesper", "Alaric"));
+
+        RolesList = new ArrayList<>(List.of(Seer.class, Doctor.class, Sorcerer.class));
+        extraRoles = new ArrayList<>(List.of(Mayor.class, Jester.class, Executioner.class, Hunter.class, Angel.class));
+        players.clear();
+
+        conversation = "";
+        round = 0;
     }
 
     //decides what roles can be randomly picked depending on the size of the group
@@ -133,10 +145,8 @@ public class Werewolf_Mafia_Offline {
             //states who the players are in the game
             System.out.println("These players returned today... ");
             // System.out.print(players.stream().map(p -> p.name).join(", "));
-            for (int k = 0; k < players.size() - 1; k++) {
-                System.out.print(players.get(k).name + (k == players.size() - 2 ? ", and " : ", "));
-            }
-            System.out.print(players.getLast().name);
+            ListPlayers(players);
+            
         }
 
         //makes sure to not take previous text as response
@@ -161,8 +171,8 @@ public class Werewolf_Mafia_Offline {
         }
         // can't lynch on the first day
         if (round > 1){
-            System.out.println("\nit is now time to vote to lynch another player...");
-            VotingRound();
+            System.out.println("\nit is now time to vote to lynch a player...");
+            VotingRound(players);
         }
         System.out.println("\nDaytime of day " + round + " has ended\n");
     }
@@ -185,7 +195,7 @@ public class Werewolf_Mafia_Offline {
 
             System.out.println("\nNighttime of day " + round + " has ended\n");
             CheckPlayerStatus();
-            System.out.println("\nPress press enter to continue\n");
+            System.out.println("\nPlease press enter to continue\n");
         }
 
     //player choosing their action is the player
@@ -193,34 +203,63 @@ public class Werewolf_Mafia_Offline {
         System.out.println("You are " + user.Role());
         user.printAction();
             if (user.ActionAvailable()){
-                user.Action(players, findPlayer("Please choose a target"));
+                System.out.println("Out of these players:");
+                ListPlayers(players);
+                user.Action(players, findPlayer("\nPlease choose a target", players));
             }
         }
 
     //allows each player to vote for each other
-    static void VotingRound(){
+    static void VotingRound(List<Character> suspects){
+        //creates a list for characters with most voting points
+        List<Character> newSuspects = new ArrayList<>();
+        //resets the voting points of each character alive
+        for (Character characters: players){
+            characters.votingPoints = 0;
+        }
+
+        System.out.println("Here are the characters you can lynch: ");
+        ListPlayers(suspects);
+        // adds each players vote
         for (Character user: players){
             if (user.name.equals("You")){
-                findPlayer("Please choose a player to lynch").votingPoints++;
+                findPlayer("\nPlease choose a player to lynch", suspects).votingPoints++;
             }
+            //mayors get double voting points
             else if (user.Role().equals("Mayor")) user.Vote(players, conversation).votingPoints += 2;
-            else user.Vote(players, conversation).votingPoints++;
-            
+            else user.Vote(suspects, conversation).votingPoints++;
         }
-
-        //List<Character> lynchedTie = new ArrayList<>();
-        //work on how to choose who to lynch when tied in points
-
-        Character lynched = players.get(0);
-        for (Character user: players){
+        //edits the NewSuspects list to include either the player lynched or the players tied
+        newSuspects.add(suspects.get(0));
+        System.out.println();
+        for (Character user: suspects){
             System.out.println(user.name + ": " + user.votingPoints);
-            if (user.votingPoints > lynched.votingPoints) lynched = user;
+            //don't check oneself with self, please
+            if (user.equals(newSuspects.get(0))) continue;
+
+            //complete suspect
+            if (user.votingPoints > newSuspects.get(0).votingPoints) {
+                newSuspects.clear();
+                newSuspects.add(user);
+            }
+            //tied suspects
+            else if (user.votingPoints == newSuspects.get(0).votingPoints) newSuspects.add(user);
         }
-        lynched.isAlive = false;
-        System.out.println(lynched.name + " has been lynched");
-        players.remove(lynched);
+
+        //if there's a tie, resets the voting round with the players tied
+        if (newSuspects.size() > 1) {
+            System.out.println("\nThere was a tie in the voting points, we will re-vote with our tied players");
+            VotingRound(newSuspects);
+        }
+        else{
+            //officially lynches a player
+            newSuspects.get(0).isAlive = false;
+            System.out.println(newSuspects.get(0).name + " has been lynched");
+            players.remove(newSuspects.get(0));
+        }
     }
 
+    //picks a random player, predicate - a preset condition
     static Character PickRandomPlayer(Predicate<Character> p) {
         Character target = null;
         do {
@@ -238,13 +277,14 @@ public class Werewolf_Mafia_Offline {
         CheckGameStatus(3);
     }
 
-    static Character findPlayer(String text){
+    //finds the player that a user types within the list of players alive
+    static Character findPlayer(String text, List<Character> list){
         String name;
         while (true){
             try {
                 System.out.println(text);
                 name = in.nextLine();
-                for (Character p : players) {
+                for (Character p : list) {
                     if (p.name.equalsIgnoreCase(name)) {
                         return p;
                     }
@@ -252,7 +292,7 @@ public class Werewolf_Mafia_Offline {
                 throw new Exception(); // If player wasn't found, throw exception
 
             } catch (Exception e) {
-                System.out.println("That player is either not in the game or has been lynched/killed");
+                System.out.println("That player is either not in the list or has been lynched/killed");
             }
         }
     }
@@ -287,7 +327,7 @@ public class Werewolf_Mafia_Offline {
                     
                 }
 
-                System.out.println("Amount of Evil Players in game " + EvilPlayers);
+                //System.out.println("Amount of Evil Players in game " + EvilPlayers);
                 if (EvilPlayers > (players.size()-EvilPlayers)){
                     System.out.println("\nToo many on the evil sides remain, wiping out the rest of the folk.");
                     //lose code
@@ -302,5 +342,12 @@ public class Werewolf_Mafia_Offline {
                 break;
             }
 
+    }
+
+    static void ListPlayers(List<Character> list){
+        for (int k = 0; k < list.size() - 1; k++) {
+            System.out.print(list.get(k).name + (k == list.size() - 2 ? ", and " : ", "));
+        }
+        System.out.print(list.getLast().name);
     }
 }
