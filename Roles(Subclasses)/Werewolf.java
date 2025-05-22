@@ -12,7 +12,7 @@ public class Werewolf extends Character{
             target = Werewolf_Mafia_Offline.PickRandomPlayer(p -> !(p instanceof Werewolf));
         }
         DyingPlayers.add(target);
-        System.out.println(name + " as the " + Role() + " decided to kill " + target.name);
+        Debug(name + " as the " + Role() + " decided to kill " + target.name);
     }
 
     @Override

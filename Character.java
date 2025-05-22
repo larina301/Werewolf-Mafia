@@ -1,14 +1,16 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.HashSet;
 
 public class Character {
     public String name;
     public int votingPoints = 0;
     public boolean isAlive = true;
-    public static List<Character> DyingPlayers = new ArrayList<>();
-    public static List<Character> SavedPlayers = new ArrayList<>();
-    public static List<String> knownWerewolfs = new ArrayList<>();
+    public static HashSet<Character> DyingPlayers = new HashSet<>();
+    public static HashSet<Character> SavedPlayers = new HashSet<>();
+    public static HashSet<String> knownWerewolfs = new HashSet<>();
+    public Character boundChar = null;
 
     static Random rand = new Random();
 
@@ -38,6 +40,9 @@ public class Character {
         // no action here
     }
 
+    public void OnDeath() {
+    }
+
     public void printAction(){
         System.out.println("As a villager, you don't have any special actions");
     }
@@ -51,21 +56,26 @@ public class Character {
     }
 
     public void checkPlayers(List<Character> list){
-        for (int i = SavedPlayers.size()-1; i >= 0; i--){
-            int index = DyingPlayers.indexOf(SavedPlayers.get(i));
-            while (index != -1){
-                DyingPlayers.remove(index);
-                index = DyingPlayers.indexOf(SavedPlayers.get(i));
-            } 
+        for (Character p : SavedPlayers){
+            DyingPlayers.remove(p);
         }
-        for (Character p: DyingPlayers) p.isAlive = false;
-
-        //KEEPS ADDING THE SAME PLAYER IF CHECKING MULTIPLE TIMES
-        //Fix it or trust AI to not check the same person more than once?
+        for (Character p: DyingPlayers) {
+            p.isAlive = false;
+            if (p.boundChar != null) {
+                p.boundChar.isAlive = false;
+                System.out.println("As " + p.name + " and " + p.boundChar.name + "were bound, both of them died");
+            }
+            p.OnDeath();
+        }
+        
         if (knownWerewolfs.size() <= 0){
             for (Character player: list){
                 if (player.Role().equals("Werewolf")) knownWerewolfs.add(player.name);
             }
         }
+    }
+
+    public static void Debug(String n){
+        System.out.println("DEBUG: " + n);
     }
 }

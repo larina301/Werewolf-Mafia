@@ -5,12 +5,6 @@ public class Executioner extends Character{
     public Executioner(String N){
         super(N);
         personalTarget = Werewolf_Mafia_Offline.PickRandomPlayer(p -> p != this);
-        //System.out.println(N + "'s personal target is " + personalTarget.name);
-    }
-
-    @Override
-    public boolean ActionAvailable(){
-        return false;
     }
 
     @Override

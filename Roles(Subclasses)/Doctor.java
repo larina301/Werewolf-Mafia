@@ -10,7 +10,7 @@ public class Doctor extends Character{
     public void Action(List<Character> list, Character target){
         if (target == null) target = Werewolf_Mafia_Offline.PickRandomPlayer(p -> true);
         SavedPlayers.add(target);
-        System.out.println(name + " as the " + Role() + " decided to save " + target.name);
+        Debug(name + " as the " + Role() + " decided to save " + target.name);
     }
 
     @Override

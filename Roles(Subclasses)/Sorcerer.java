@@ -19,8 +19,9 @@ public class Sorcerer extends Character{
             TheSeer = target;
         }
         else if (name.equals("You")) System.out.println(target.name + "is not the Seer");
+        System.out.println();
 
-        System.out.println(name + " checked if " + target.name + " is a Seer\n    the Seer found is:" + TheSeer);
+        Debug(name + " checked if " + target.name + " is a Seer\n    the Seer found is:" + TheSeer);
     }
 
     @Override

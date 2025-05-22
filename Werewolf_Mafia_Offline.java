@@ -66,7 +66,13 @@ public class Werewolf_Mafia_Offline {
         "Vesper", "Alaric"));
 
         RolesList = new ArrayList<>(List.of(Seer.class, Doctor.class, Sorcerer.class));
-        extraRoles = new ArrayList<>(List.of(Mayor.class, Jester.class, Executioner.class, Hunter.class, Angel.class));
+        extraRoles = new ArrayList<>(List.of(
+            Mayor.class, 
+            Jester.class, 
+            Executioner.class, 
+            Hunter.class, 
+            Angel.class, 
+            Doctor.class));
         players.clear();
 
         conversation = "";
@@ -77,10 +83,15 @@ public class Werewolf_Mafia_Offline {
     static void constructRoles(int PlayerCount){
         int r;
 
-        //creates the amount of villagers and werewolfs in the party based on percent/ratio
-        for (int i = 0; i < (int) Math.floor(PlayerCount * 0.25); i++) RolesList.add(Character.class);
-        for (int i = 0; i < (int) Math.ceil(PlayerCount * 0.25); i++) RolesList.add(Werewolf.class);
+        //playercount = 6
+        //doctor seer sorcerer + villager + villager + villager + were + were
 
+        PlayerCount -= 3;
+        //creates the amount of villagers and werewolfs in the party based on percent/ratio
+        for (int i = 0; i < (int) Math.floor(PlayerCount * 0.50); i++) RolesList.add(Character.class);
+        for (int i = 0; i < (int) Math.ceil(PlayerCount * 0.20); i++) RolesList.add(Werewolf.class);
+
+        PlayerCount += 3;
         //adds extra roles if there's still space
         while (RolesList.size() < PlayerCount && extraRoles.size() > 0){
             r = rand.nextInt(extraRoles.size());
@@ -107,7 +118,6 @@ public class Werewolf_Mafia_Offline {
             players.add(player);
         } catch (Exception e) {
         }
-
         //making and adding the profile to character list
     }
 
@@ -185,7 +195,7 @@ public class Werewolf_Mafia_Offline {
             // checking who the user is
             if (user.name.equals("You")){
                 // letting the player know their action
-                    CheckUserAction(user, false);
+                    CheckUserAction(user);
                 }
                 else{
                     user.Action(players, null);
@@ -199,11 +209,11 @@ public class Werewolf_Mafia_Offline {
         }
 
     //player choosing their action is the player
-    static void CheckUserAction(Character user, boolean DayTime){
+    static void CheckUserAction(Character user){
         System.out.println("You are " + user.Role());
         user.printAction();
             if (user.ActionAvailable()){
-                System.out.println("Out of these players:");
+                System.out.println("\nOut of these players:");
                 ListPlayers(players);
                 user.Action(players, findPlayer("\nPlease choose a target", players));
             }
@@ -254,6 +264,7 @@ public class Werewolf_Mafia_Offline {
         else{
             //officially lynches a player
             newSuspects.get(0).isAlive = false;
+            if (newSuspects.get(0).boundChar != null) newSuspects.get(0).boundChar.isAlive = false;
             System.out.println(newSuspects.get(0).name + " has been lynched");
             players.remove(newSuspects.get(0));
         }

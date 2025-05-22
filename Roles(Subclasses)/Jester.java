@@ -5,11 +5,6 @@ public class Jester extends Character{
     }
 
     @Override
-    public boolean ActionAvailable(){
-        return false;
-    }
-
-    @Override
     public String Role() { return "Jester"; }
 
     @Override

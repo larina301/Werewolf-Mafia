@@ -19,8 +19,8 @@ public class Seer extends Character{
             if (name.equals("You")) System.out.println(target.name + " is a Werewolf");
             WerewolvesFound.add(target);
         }
-        else if (name.equals("You")) System.out.println(target.name + " is not a Werewolf");
-        System.out.println(name + " checked if " + target.name + " is a werewolf\n    the werewolves found are:" + WerewolvesFound);
+        else if (name.equals("You")) System.out.println(target.name + " is not a Werewolf\n");
+        Debug(name + " checked if " + target.name + " is a werewolf\n    the werewolves found are:" + WerewolvesFound);
     }
 
     @Override
