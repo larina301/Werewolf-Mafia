@@ -93,7 +93,8 @@ public class Persona {
     }
 
     public String GenerateResponse() {
-        return Werewolf_Mafia_Offline.SendRequestToServer(log + name + ": ");
+        String verb = log.length() > 100 ? "Continue" : "Begin";
+        return Werewolf_Mafia_Offline.SendRequestToServer(log + "\n" + verb + " the conversation as " + name + " in a short way.");
     }
 
     String log;

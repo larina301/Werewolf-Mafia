@@ -5,39 +5,37 @@ import java.net.*;
 class GptClient {
     public static String Request(String prompt) {
         try {
-            URL url = new URL("https://api.openai.com/v1/responses");
+            URL url = new URL("https://api.openai.com/v1/chat/completions");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setRequestProperty("Content-Type", "application/json");
             httpURLConnection.setRequestProperty("Authorization", "Bearer " + System.getenv("OPENAI_API_KEY"));
 
             String json = """
-            {
-                "model": "gpt-4o-mini",
-                "temperature": 1,
-                "max_output_tokens": 100,
-                "top_p": 1,
-                "store": true,
-                "age": 30,
-                "text": {
-                    "format": {
-                        "type": "text"
-                    }
-                },
-                "input": [
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "input_text",
-                                "text": """ + prompt + """
-                            }
-                        ]
-                    }
-                ]
-            }
+{
+  "model": "gpt-4o-mini",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": """ + "\"" + escapeHTML(prompt) + "\"\n" + """
+        }
+      ]
+    } 
+  ], 
+  "response_format": {    
+    "type": "text"
+  },              
+  "temperature": 1,  
+  "max_completion_tokens": 2048,                                                                                  
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0
+}
             """;
-
+            System.out.println(json);
             httpURLConnection.setDoOutput(true);
             try (OutputStream os = httpURLConnection.getOutputStream()) {
                 byte[] input = json.getBytes("utf-8");
@@ -64,5 +62,20 @@ class GptClient {
             System.err.println("IO Error: " + e.getMessage());
         }
         return "";
+    }
+
+    public static String escapeHTML(String s) {
+        StringBuilder out = new StringBuilder(Math.max(16, s.length()));
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c > 127 || c == '"' || c == '\'' || c == '<' || c == '>' || c == '&' || c == '\n') {
+                out.append("&#");
+                out.append((int) c);
+                out.append(';');
+            } else {
+                out.append(c);
+            }
+        }
+        return out.toString();
     }
 }
