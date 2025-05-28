@@ -12,7 +12,7 @@ public class Werewolf_Mafia_Offline {
     static List<Class> RolesList, extraRoles;
 
     //list of the players and their stats
-    static List<Character> players = new ArrayList<>();
+    static List<Persona> players = new ArrayList<>();
     //the entire conversation for AI to review to contribute
     static public String conversation;
     //checks what round it currently is
@@ -88,7 +88,7 @@ public class Werewolf_Mafia_Offline {
 
         PlayerCount -= 3;
         //creates the amount of villagers and werewolfs in the party based on percent/ratio
-        for (int i = 0; i < (int) Math.floor(PlayerCount * 0.50); i++) RolesList.add(Character.class);
+        for (int i = 0; i < (int) Math.floor(PlayerCount * 0.50); i++) RolesList.add(Persona.class);
         for (int i = 0; i < (int) Math.ceil(PlayerCount * 0.20); i++) RolesList.add(Werewolf.class);
 
         PlayerCount += 3;
@@ -111,10 +111,10 @@ public class Werewolf_Mafia_Offline {
         
         //randomly choose a role for character
         r = rand.nextInt(RolesList.size());
-        Class<Character> role = RolesList.remove(r);
+        Class<Persona> role = RolesList.remove(r);
         try {
-            Constructor<Character> constructor = role.getConstructor(String.class);
-            Character player = constructor.newInstance(name);
+            Constructor<Persona> constructor = role.getConstructor(String.class);
+            Persona player = constructor.newInstance(name);
             players.add(player);
         } catch (Exception e) {
         }
@@ -167,7 +167,7 @@ public class Werewolf_Mafia_Offline {
             //three rounds total to converse and argue
             System.out.println("\nRound " + i + ": the conversation begins...");
             //gives each character a turn to speak
-            for (Character user: players){
+            for (Persona user: players){
                 if (user.name.equals("You")){
                     //the character is the player, they get custom
                     System.out.print("You: ");
@@ -190,7 +190,7 @@ public class Werewolf_Mafia_Offline {
     //the night time cycle where users gets to use their actions
     static void NightTimeCycle(){
         //String response = "";
-        for (Character user: players){
+        for (Persona user: players){
 
             // checking who the user is
             if (user.name.equals("You")){
@@ -209,7 +209,7 @@ public class Werewolf_Mafia_Offline {
         }
 
     //player choosing their action is the player
-    static void CheckUserAction(Character user){
+    static void CheckUserAction(Persona user){
         System.out.println("You are " + user.Role());
         user.printAction();
             if (user.ActionAvailable()){
@@ -220,18 +220,18 @@ public class Werewolf_Mafia_Offline {
         }
 
     //allows each player to vote for each other
-    static void VotingRound(List<Character> suspects){
-        Character ExecutionerPresent = null;
+    static void VotingRound(List<Persona> suspects){
+        Persona ExecutionerPresent = null;
         //creates a list for characters with most voting points
-        List<Character> newSuspects = new ArrayList<>();
+        List<Persona> newSuspects = new ArrayList<>();
         //resets the voting points of each character alive
-        for (Character characters: players){
+        for (Persona characters: players){
             characters.votingPoints = 0;
         }
         System.out.println("Here are the characters you can lynch: ");
         ListPlayers(suspects);
         // adds each players vote
-        for (Character user: players){
+        for (Persona user: players){
             if (user.name.equals("You")){
                 findPlayer("\nPlease choose a player to lynch", suspects).votingPoints++;
             }
@@ -244,7 +244,7 @@ public class Werewolf_Mafia_Offline {
         //edits the NewSuspects list to include either the player lynched or the players tied
         newSuspects.add(suspects.get(0));
         System.out.println();
-        for (Character user: suspects){
+        for (Persona user: suspects){
             System.out.println(user.name + ": " + user.votingPoints);
             //don't check oneself with self, please
             if (user.equals(newSuspects.get(0))) continue;
@@ -276,8 +276,8 @@ public class Werewolf_Mafia_Offline {
     }
 
     //picks a random player, predicate - a preset condition
-    static Character PickRandomPlayer(Predicate<Character> p) {
-        Character target = null;
+    static Persona PickRandomPlayer(Predicate<Persona> p) {
+        Persona target = null;
         do {
             target = players.get(rand.nextInt(players.size()));
         } while (!p.test(target));
@@ -294,13 +294,13 @@ public class Werewolf_Mafia_Offline {
     }
 
     //finds the player that a user types within the list of players alive
-    static Character findPlayer(String text, List<Character> list){
+    static Persona findPlayer(String text, List<Persona> list){
         String name;
         while (true){
             try {
                 System.out.println(text);
                 name = in.nextLine();
-                for (Character p : list) {
+                for (Persona p : list) {
                     if (p.name.equalsIgnoreCase(name)) {
                         return p;
                     }
@@ -313,7 +313,7 @@ public class Werewolf_Mafia_Offline {
         }
     }
 
-    static void AddLogEntry(Character character, String text) {
+    static void AddLogEntry(Persona character, String text) {
         for (var player : players) {
             player.AddLogEntry(character.name + ": " + text + "\n");
         }
@@ -339,7 +339,7 @@ public class Werewolf_Mafia_Offline {
 
             default:
                 //cataloguing the amount of evil players
-                for (Character p : players){
+                for (Persona p : players){
                     switch (p.Role()){
                         case ("Werewolf"):
                             EvilPlayers++;
@@ -368,7 +368,7 @@ public class Werewolf_Mafia_Offline {
 
     }
 
-    static void ListPlayers(List<Character> list){
+    static void ListPlayers(List<Persona> list){
         for (int k = 0; k < list.size() - 1; k++) {
             System.out.print(list.get(k).name + (k == list.size() - 2 ? ", and " : ", "));
         }
@@ -395,10 +395,20 @@ public class Werewolf_Mafia_Offline {
     }
 
     public static String SendRequestToServer(String prompt) {
-        return "Said nothing.";
+        return GptClient.Request(prompt);
     }
 
-    public static String GenerateInitialPrompt(Character c) {
-        return "This is a log of mafia game, where " + c.name + " plays " + c.Role() + "\n";
+    public static String GenerateInitialPrompt(Persona c) {
+        String prompt = "This is a log of a mafia game played by players ";
+        for (var p : players)
+            prompt += p.name + ", ";
+        prompt += "where " + c.name + " plays the " + c.Role() + " role.\n";
+
+// Jane: Hello, how can we find who is Werewolf?
+// Vova: I don't know. Any ideas?
+// Respond as Alph in a short way."
+//         return "This is a log of mafia game, where " + c.name + " plays " + c.Role() + "\n";
+        return prompt;
     }
+
 }

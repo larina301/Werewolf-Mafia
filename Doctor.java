@@ -1,13 +1,13 @@
 import java.util.List;
 
-public class Doctor extends Character{
+public class Doctor extends Persona {
 
     public Doctor(String N){
         super(N);
     }
 
     @Override
-    public void Action(List<Character> list, Character target){
+    public void Action(List<Persona> list, Persona target){
         if (target == null) target = Werewolf_Mafia_Offline.PickRandomPlayer(p -> true);
         SavedPlayers.add(target);
         Debug(name + " as the " + Role() + " decided to save " + target.name);

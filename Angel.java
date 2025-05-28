@@ -1,16 +1,16 @@
 import java.util.List;
 
-public class Angel extends Character{
+public class Angel extends Persona {
 
     boolean actionDone = false;
-    Character target2;
+    Persona target2;
 
     public Angel(String N){
         super(N);
     }
 
     @Override
-    public void Action(List<Character> list, Character target){
+    public void Action(List<Persona> list, Persona target){
         if (actionDone) return;
         list.remove(target);
         if (target != null) {
@@ -18,7 +18,7 @@ public class Angel extends Character{
         }
         else{
             target = Werewolf_Mafia_Offline.PickRandomPlayer(p -> true);
-            final Character finalTarget = target;
+            final Persona finalTarget = target;
             target2 = Werewolf_Mafia_Offline.PickRandomPlayer(p -> !p.equals(finalTarget));
         }
         actionDone = true;

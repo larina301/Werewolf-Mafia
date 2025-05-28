@@ -1,16 +1,16 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Seer extends Character{
+public class Seer extends Persona{
 
-    public List<Character> WerewolvesFound = new ArrayList<>();
+    public List<Persona> WerewolvesFound = new ArrayList<>();
 
     public Seer(String N){
         super(N);
     }
 
     @Override
-    public void Action(List<Character> list, Character target){
+    public void Action(List<Persona> list, Persona target){
         if (target == null) {
             target = Werewolf_Mafia_Offline.PickRandomPlayer(p -> p != this);
         }

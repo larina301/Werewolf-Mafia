@@ -1,6 +1,6 @@
 import java.util.List;
 
-public class Hunter extends Character{
+public class Hunter extends Persona{
 
     public static boolean isDying = false;
 
@@ -14,7 +14,7 @@ public class Hunter extends Character{
     }
 
     @Override
-    public void Action(List<Character> list, Character target){
+    public void Action(List<Persona> list, Persona target){
         if (!ActionAvailable()) return;
         if (target == null){
             target = Werewolf_Mafia_Offline.PickRandomPlayer(p -> p != this);

@@ -1,5 +1,5 @@
 
-public class Mayor extends Character{
+public class Mayor extends Persona{
 
     public Mayor(String N){
         super(N);

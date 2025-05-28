@@ -1,15 +1,15 @@
 import java.util.List;
 
-public class Sorcerer extends Character{
+public class Sorcerer extends Persona{
 
-    public Character TheSeer = null;
+    public Persona TheSeer = null;
 
     public Sorcerer(String N){
         super(N);
     }
 
     @Override
-    public void Action(List<Character> list, Character target){
+    public void Action(List<Persona> list, Persona target){
         if (target == null) {
             target = Werewolf_Mafia_Offline.PickRandomPlayer(p -> !(p instanceof Werewolf) && p != this);
         }

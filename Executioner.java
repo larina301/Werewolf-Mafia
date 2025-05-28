@@ -1,8 +1,8 @@
 import java.util.List;
 
-public class Executioner extends Character{
+public class Executioner extends Persona{
 
-    public Character personalTarget;
+    public Persona personalTarget;
 
     public Executioner(String N){
         super(N);
@@ -18,7 +18,7 @@ public class Executioner extends Character{
     }
 
     @Override
-    public void Action(List<Character> list, Character target){
+    public void Action(List<Persona> list, Persona target){
         if (target.equals(personalTarget)){
             if (name.equals("You")) Werewolf_Mafia_Offline.CheckGameStatus(0);
             Debug(name + ", the Executioner, has won");

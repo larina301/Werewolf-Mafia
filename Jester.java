@@ -1,4 +1,4 @@
-public class Jester extends Character{
+public class Jester extends Persona{
 
     public Jester(String N){
         super(N);

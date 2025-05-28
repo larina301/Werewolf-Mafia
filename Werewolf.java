@@ -1,13 +1,13 @@
 import java.util.List;
 
-public class Werewolf extends Character{
+public class Werewolf extends Persona{
 
     public Werewolf(String N){
         super(N);
     }
 
     @Override
-    public void Action(List<Character> list, Character target){
+    public void Action(List<Persona> list, Persona target){
         if (target == null) {
             target = Werewolf_Mafia_Offline.PickRandomPlayer(p -> !(p instanceof Werewolf));
         }
