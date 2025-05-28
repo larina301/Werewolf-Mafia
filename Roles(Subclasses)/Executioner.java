@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class Executioner extends Character{
 
     public Character personalTarget;
@@ -15,6 +17,12 @@ public class Executioner extends Character{
         System.out.println("As an Executioner, You have lynch out your target to win. If they die, you lose");
     }
 
-    
+    @Override
+    public void Action(List<Character> list, Character target){
+        if (target.equals(personalTarget)){
+            if (name.equals("You")) Werewolf_Mafia_Offline.CheckGameStatus(0);
+            Debug(name + ", the Executioner, has won");
+        }
+    }
 
 }

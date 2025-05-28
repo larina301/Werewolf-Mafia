@@ -1,31 +1,32 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.HashSet;
 
 public class Character {
     public String name;
     public int votingPoints = 0;
     public boolean isAlive = true;
-    public static HashSet<Character> DyingPlayers = new HashSet<>();
-    public static HashSet<Character> SavedPlayers = new HashSet<>();
-    public static HashSet<String> knownWerewolfs = new HashSet<>();
+    public static List<Character> DyingPlayers = new ArrayList<>();
+    public static List<Character> SavedPlayers = new ArrayList<>();
+    public static List<String> knownWerewolfs = new ArrayList<>();
     public Character boundChar = null;
 
     static Random rand = new Random();
 
     public Character(String N){
         name = N;
+        log = Werewolf_Mafia_Offline.GenerateInitialPrompt(this);
     }
 
     public void setName(String N){
         name = N;
     }
 
-    public void DialogueTurn(String PrevDialogue){
-        String Dialogue = name + " said something";
+    public void DialogueTurn(){
+        
+        String Dialogue = GenerateResponse();
         System.out.println(Dialogue);
-        PrevDialogue += " " + name + ": " + Dialogue;
+        Werewolf_Mafia_Offline.conversation += " " + name + ": " + Dialogue + "; ";
     }
 
     public boolean ActionAvailable(){
@@ -40,7 +41,11 @@ public class Character {
         // no action here
     }
 
-    public void OnDeath() {
+    public void OnDeath(boolean lynched) {
+        if (name.equals("You")) {
+            System.out.println("\n you have died");
+            Werewolf_Mafia_Offline.ContGame();
+        }
     }
 
     public void printAction(){
@@ -63,9 +68,10 @@ public class Character {
             p.isAlive = false;
             if (p.boundChar != null) {
                 p.boundChar.isAlive = false;
-                System.out.println("As " + p.name + " and " + p.boundChar.name + "were bound, both of them died");
+                System.out.println("As " + p.name + " and " + p.boundChar.name + " were bound, both of them died");
             }
-            p.OnDeath();
+            p.OnDeath(false);
+            Werewolf_Mafia_Offline.conversation += " " + p.name + " has died; ";
         }
         
         if (knownWerewolfs.size() <= 0){
@@ -73,9 +79,23 @@ public class Character {
                 if (player.Role().equals("Werewolf")) knownWerewolfs.add(player.name);
             }
         }
+
+        DyingPlayers.clear();
+        SavedPlayers.clear();
+
     }
 
     public static void Debug(String n){
         System.out.println("DEBUG: " + n);
     }
+
+    public void AddLogEntry(String text) {
+        log += text;
+    }
+
+    public String GenerateResponse() {
+        return Werewolf_Mafia_Offline.SendRequestToServer(log + name + ": ");
+    }
+
+    String log;
 }

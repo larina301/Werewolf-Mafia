@@ -12,4 +12,12 @@ public class Jester extends Character{
         System.out.println("As a Jester, You have to be voted out to win");
     }
 
+    @Override
+    public void OnDeath(boolean lynched){
+        if (lynched){
+            if (name.equals("You")) Werewolf_Mafia_Offline.CheckGameStatus(1);
+            Debug(name + ", the jester, has won");
+        }
+    }
+
 }

@@ -175,7 +175,7 @@ public class Werewolf_Mafia_Offline {
                 }
                 else{
                     //allows bot to continue the conversation as the character
-                    user.DialogueTurn(conversation);
+                    user.DialogueTurn();
                 }
             }
         }
@@ -197,11 +197,11 @@ public class Werewolf_Mafia_Offline {
                 // letting the player know their action
                     CheckUserAction(user);
                 }
-                else{
-                    user.Action(players, null);
-                    System.out.println();
-                }
+            else{
+                if (user.ActionAvailable()) user.Action(players, null);
+                System.out.println();
             }
+        }
 
             System.out.println("\nNighttime of day " + round + " has ended\n");
             CheckPlayerStatus();
@@ -221,13 +221,13 @@ public class Werewolf_Mafia_Offline {
 
     //allows each player to vote for each other
     static void VotingRound(List<Character> suspects){
+        Character ExecutionerPresent = null;
         //creates a list for characters with most voting points
         List<Character> newSuspects = new ArrayList<>();
         //resets the voting points of each character alive
         for (Character characters: players){
             characters.votingPoints = 0;
         }
-
         System.out.println("Here are the characters you can lynch: ");
         ListPlayers(suspects);
         // adds each players vote
@@ -238,6 +238,8 @@ public class Werewolf_Mafia_Offline {
             //mayors get double voting points
             else if (user.Role().equals("Mayor")) user.Vote(players, conversation).votingPoints += 2;
             else user.Vote(suspects, conversation).votingPoints++;
+
+            if (user.Role().equals("Executioner")) ExecutionerPresent = user;
         }
         //edits the NewSuspects list to include either the player lynched or the players tied
         newSuspects.add(suspects.get(0));
@@ -258,6 +260,7 @@ public class Werewolf_Mafia_Offline {
 
         //if there's a tie, resets the voting round with the players tied
         if (newSuspects.size() > 1) {
+            conversation += " There was a tie in the voting points, please re-vote ";// UPDATE THIS
             System.out.println("\nThere was a tie in the voting points, we will re-vote with our tied players");
             VotingRound(newSuspects);
         }
@@ -265,7 +268,9 @@ public class Werewolf_Mafia_Offline {
             //officially lynches a player
             newSuspects.get(0).isAlive = false;
             if (newSuspects.get(0).boundChar != null) newSuspects.get(0).boundChar.isAlive = false;
-            System.out.println(newSuspects.get(0).name + " has been lynched");
+            System.out.println(newSuspects.get(0).name + " has been lynched"); 
+            if (ExecutionerPresent != null) ExecutionerPresent.Action(players, newSuspects.get(0));
+            newSuspects.get(0).OnDeath(true);
             players.remove(newSuspects.get(0));
         }
     }
@@ -308,6 +313,12 @@ public class Werewolf_Mafia_Offline {
         }
     }
 
+    static void AddLogEntry(Character character, String text) {
+        for (var player : players) {
+            player.AddLogEntry(character.name + ": " + text + "\n");
+        }
+    }
+
     static void CheckGameStatus(int Case){
         //checks if any side (OR ROLES) won the game,
         //check after how many turns it's possible
@@ -317,11 +328,13 @@ public class Werewolf_Mafia_Offline {
 
         switch (Case){
             case 0:
-                System.out.println("As the Executioner, you won!\n would you like to continue the game as a spectator?");
+                System.out.println("As the Executioner, you won!");
+                ContGame();
                 break;
 
             case 1:
-                System.out.println("As the Jester, you won!\n would you like to continue the game as a spectator?");
+                System.out.println("As the Jester, you won!");
+                ContGame();
                 break;
 
             default:
@@ -360,5 +373,32 @@ public class Werewolf_Mafia_Offline {
             System.out.print(list.get(k).name + (k == list.size() - 2 ? ", and " : ", "));
         }
         System.out.print(list.getLast().name);
+    }
+
+    static void ContGame(){
+        String response = "";
+        while (true){
+            try{
+                System.out.println("would you like to continue the game as a spectator?");
+                response = in.nextLine().toLowerCase();
+                if (response.equals("y") || response.equals("yes")) break;
+                else if (response.equals("n") || response.equals("no")) {
+                    GameOn = false;
+                    break;
+                }
+                else throw new Exception();
+            } catch (Exception e){
+                System.out.println("\nThat's not a valid response. Please type yes/no or y/n");
+            }
+
+        }
+    }
+
+    public static String SendRequestToServer(String prompt) {
+        return "Said nothing.";
+    }
+
+    public static String GenerateInitialPrompt(Character c) {
+        return "This is a log of mafia game, where " + c.name + " plays " + c.Role() + "\n";
     }
 }

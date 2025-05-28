@@ -24,7 +24,7 @@ public class Hunter extends Character{
     }
 
     @Override
-    public void OnDeath() {
+    public void OnDeath(boolean lynched) {
         isDying = true;
         if (name.equals("You")) {
             Werewolf_Mafia_Offline.CheckUserAction(this);
