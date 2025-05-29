@@ -15,7 +15,6 @@ public class Persona {
 
     public Persona(String N){
         name = N;
-        log = Werewolf_Mafia_Offline.GenerateInitialPrompt(this);
     }
 
     public void setName(String N){
@@ -23,9 +22,9 @@ public class Persona {
     }
 
     public void DialogueTurn(){
-        String Dialogue = GenerateResponse();
-        System.out.println(Dialogue);
-        Werewolf_Mafia_Offline.conversation += " " + name + ": " + Dialogue + "; ";
+        String Dialogue = name + ": " + GenerateResponse(-1) + "\n";
+        System.out.println(Dialogue);        
+        Werewolf_Mafia_Offline.AddLogEntry(Dialogue);
     }
 
     public boolean ActionAvailable(){
@@ -51,11 +50,19 @@ public class Persona {
         System.out.println("As a villager, you don't have any special actions");
     }
 
-    public Persona Vote(List<Persona> list, String convo){
+    public Persona Vote(List<Persona> list){
         //based on convo choose a player from the list given
-        Persona yikes = this;
-        while (yikes == this) yikes = list.get(rand.nextInt(list.size()));
-        //System.out.println(name + " voted for " + yikes.name);
+        Persona yikes = null;
+        do {
+            String nameVoting = GenerateResponse(0);
+            for (Persona p: list){
+                if (p.name.equals(nameVoting))  yikes = p;
+                break;
+            }
+        } while (yikes == null);
+        
+        //while (yikes == this) yikes = list.get(rand.nextInt(list.size()));
+        Debug(name + " voted for " + yikes.name);
         return yikes;
     }
 
@@ -70,7 +77,7 @@ public class Persona {
                 System.out.println("As " + p.name + " and " + p.boundChar.name + " were bound, both of them died");
             }
             p.OnDeath(false);
-            Werewolf_Mafia_Offline.conversation += " " + p.name + " has died; ";
+            Werewolf_Mafia_Offline.AddLogEntry(p.name + " has died during the night\n");
         }
         
         if (knownWerewolfs.size() <= 0){
@@ -89,12 +96,34 @@ public class Persona {
     }
 
     public void AddLogEntry(String text) {
+        EnsureLog();
         log += text;
     }
 
-    public String GenerateResponse() {
+    public String GenerateResponse(int Case) {
+        EnsureLog();
         String verb = log.length() > 100 ? "Continue" : "Begin";
-        return Werewolf_Mafia_Offline.SendRequestToServer(log + "\n" + verb + " the conversation as " + name + " in a short way.");
+        String convoCont = log + " " + verb +
+        " the conversation as " + name + " in maximum of two short sentences. Just write what you would say without indirect quoting.";
+        String lynchCont = log + " Choose a character to lynch as " + name + ". Just write the name";
+
+        String situation = "";
+            switch (Case) {
+                case 0:
+                    situation = lynchCont;
+                    break;
+            
+                default:
+                    situation = convoCont;
+                    break;
+            }
+        
+        return Werewolf_Mafia_Offline.SendRequestToServer(situation);
+    }
+
+    public void EnsureLog() {
+        if (log == null)
+            log = Werewolf_Mafia_Offline.GenerateInitialPrompt(this);
     }
 
     String log;

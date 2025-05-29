@@ -13,8 +13,7 @@ public class Werewolf_Mafia_Offline {
 
     //list of the players and their stats
     static List<Persona> players = new ArrayList<>();
-    //the entire conversation for AI to review to contribute
-    static public String conversation;
+
     //checks what round it currently is
     static int round;
     static public boolean GameOn;
@@ -75,7 +74,6 @@ public class Werewolf_Mafia_Offline {
             Doctor.class));
         players.clear();
 
-        conversation = "";
         round = 0;
     }
 
@@ -171,7 +169,7 @@ public class Werewolf_Mafia_Offline {
                 if (user.name.equals("You")){
                     //the character is the player, they get custom
                     System.out.print("You: ");
-                    conversation += " Main Player: " + in.nextLine();
+                    AddLogEntry(" Mila: " + in.nextLine());
                 }
                 else{
                     //allows bot to continue the conversation as the character
@@ -233,11 +231,13 @@ public class Werewolf_Mafia_Offline {
         // adds each players vote
         for (Persona user: players){
             if (user.name.equals("You")){
-                findPlayer("\nPlease choose a player to lynch", suspects).votingPoints++;
+                int points = 1;
+                if (user.Role().equals("Mayor")) points = 2;
+                findPlayer("\nPlease choose a player to lynch", suspects).votingPoints += points;
             }
             //mayors get double voting points
-            else if (user.Role().equals("Mayor")) user.Vote(players, conversation).votingPoints += 2;
-            else user.Vote(suspects, conversation).votingPoints++;
+            else if (user.Role().equals("Mayor")) user.Vote(players).votingPoints += 2;
+            else user.Vote(suspects).votingPoints++;
 
             if (user.Role().equals("Executioner")) ExecutionerPresent = user;
         }
@@ -260,18 +260,19 @@ public class Werewolf_Mafia_Offline {
 
         //if there's a tie, resets the voting round with the players tied
         if (newSuspects.size() > 1) {
-            conversation += " There was a tie in the voting points, please re-vote ";// UPDATE THIS
             System.out.println("\nThere was a tie in the voting points, we will re-vote with our tied players");
             VotingRound(newSuspects);
         }
         else{
             //officially lynches a player
-            newSuspects.get(0).isAlive = false;
-            if (newSuspects.get(0).boundChar != null) newSuspects.get(0).boundChar.isAlive = false;
-            System.out.println(newSuspects.get(0).name + " has been lynched"); 
-            if (ExecutionerPresent != null) ExecutionerPresent.Action(players, newSuspects.get(0));
-            newSuspects.get(0).OnDeath(true);
-            players.remove(newSuspects.get(0));
+            Persona lynched = newSuspects.get(0);
+            lynched.isAlive = false;
+            if (lynched.boundChar != null) lynched.boundChar.isAlive = false;
+            System.out.println(lynched.name + " has been lynched"); 
+            AddLogEntry(" " + lynched.name + " has been lynched ");
+            if (ExecutionerPresent != null) ExecutionerPresent.Action(players, lynched);
+            lynched.OnDeath(true);
+            players.remove(lynched);
         }
     }
 
@@ -313,9 +314,9 @@ public class Werewolf_Mafia_Offline {
         }
     }
 
-    static void AddLogEntry(Persona character, String text) {
+    static void AddLogEntry(String text) {
         for (var player : players) {
-            player.AddLogEntry(character.name + ": " + text + "\n");
+            player.AddLogEntry(text);
         }
     }
 

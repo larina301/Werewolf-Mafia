@@ -3,13 +3,28 @@ import java.net.*;
 
 
 class GptClient {
+    public static String ApiKey() {
+        String filePath = System.getenv("HOME") + "/.openai_api_key";
+        StringBuilder content = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+        return content.toString();
+    }
+
     public static String Request(String prompt) {
         try {
             URL url = new URL("https://api.openai.com/v1/chat/completions");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setRequestProperty("Content-Type", "application/json");
-            httpURLConnection.setRequestProperty("Authorization", "Bearer " + System.getenv("OPENAI_API_KEY"));
+            httpURLConnection.setRequestProperty("Authorization", "Bearer " + ApiKey());
 
             String json = """
 {
@@ -29,13 +44,13 @@ class GptClient {
     "type": "text"
   },              
   "temperature": 1,  
-  "max_completion_tokens": 2048,                                                                                  
+  "max_completion_tokens": 50,                                                                                  
   "top_p": 1,
   "frequency_penalty": 0,
   "presence_penalty": 0
 }
             """;
-            System.out.println(json);
+            // System.out.println(json);
             httpURLConnection.setDoOutput(true);
             try (OutputStream os = httpURLConnection.getOutputStream()) {
                 byte[] input = json.getBytes("utf-8");
@@ -43,7 +58,7 @@ class GptClient {
             }
 
             int responseCode = httpURLConnection.getResponseCode();
-            System.out.println("Response Code: " + responseCode);
+            // System.out.println("Response Code: " + responseCode);
 
 
             BufferedReader in = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
@@ -53,8 +68,15 @@ class GptClient {
                 response.append(inputLine);
             }
             in.close();
-            System.out.println(response.toString());
-            return response.toString();
+            // System.out.println(response.toString());
+            json = response.toString();
+            String tag = "\"content\": \"";
+            int start = json.indexOf(tag);
+            if (start < 0) return "";
+            start += tag.length();
+            int end = json.indexOf('"', start);
+            if (end < 0) return "";
+            return json.substring(start, end);
 
         } catch (MalformedURLException e) {
             System.err.println("Malformed URL: " + e.getMessage());
