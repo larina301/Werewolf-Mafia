@@ -400,10 +400,10 @@ public class Werewolf_Mafia_Offline {
     }
 
     public static String GenerateInitialPrompt(Persona c) {
-        String prompt = "This is a log of a mafia game played by players ";
+        String prompt = "This is a log of a mafia Werewolf style game  played by players ";
         for (var p : players)
             prompt += p.name + ", ";
-        prompt += "where " + c.name + " plays the " + c.Role() + " role.\n";
+        prompt += "where " + c.name + " plays the " + c.Role() + " role and " + c.getPersonality() + ".\n";
 
 // Jane: Hello, how can we find who is Werewolf?
 // Vova: I don't know. Any ideas?
