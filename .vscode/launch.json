@@ -9,6 +9,13 @@
             "name": "Werewolf_Mafia_Offline",
             "request": "launch",
             "mainClass": "Werewolf_Mafia_Offline",
+            "projectName": "Werewolf-Mafia_fca337fb"
+        },
+        {
+            "type": "java",
+            "name": "Werewolf_Mafia_Offline",
+            "request": "launch",
+            "mainClass": "Werewolf_Mafia_Offline",
             "projectName": "Werewolf-Mafia_a3537cb"
         },
         {
