@@ -405,10 +405,6 @@ public class Werewolf_Mafia_Offline {
             prompt += p.name + ", ";
         prompt += "where " + c.name + " plays the " + c.Role() + " role and " + c.getPersonality() + ".\n";
 
-// Jane: Hello, how can we find who is Werewolf?
-// Vova: I don't know. Any ideas?
-// Respond as Alph in a short way."
-//         return "This is a log of mafia game, where " + c.name + " plays " + c.Role() + "\n";
         return prompt;
     }
 
